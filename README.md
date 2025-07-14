@@ -7,6 +7,7 @@ Repository for Robstride &amp; Xiaomi Cybergear, for CH34X communication between
 
 # Intro
 This Repository is needed when your USB2CAN device is detected as CH34X driver.
+<br>
 Note : CH340, CH341 all works, as long as the device is detected with the format of : CH34X
 
 However, This repository is NOT RECOMMENDED for practical purpose (Robot Actuator, Differential Drive System, ...) since UART communication via CH340 Driver has relatively low communication frequency compared to direct USB2CAN communication.
