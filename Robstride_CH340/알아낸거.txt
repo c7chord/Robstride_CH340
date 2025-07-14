@@ -1,104 +1,43 @@
-COMMAND 구조 : "AT" / 29-bit CAN ID / byte 개수 / CAN-MESSAGE / "\r\n"
+The following is the CAN2.0B(29 bit CAN-ID)-UART conversion protocol, used for Robstride & Xiaomi cybergear.
+Refer to : https://github.com/belovictor/cybergear-docs/blob/main/instructionmanual/instructionmanual.md
 
-CAN ID 구성
-ww xx yy zz : 8bit decimal x 4 = 32bit
-앞의 3개 (왼쪽 3개)를 없앤 후, (CAN 2.0B는 29bit CAN ID를 사용)
+## CAN COMMAND ##
+Usually, interface for CAN command requires two parameters : CAN-ID, CAN-MESSAGE.
+CAN-ID : Contains information about master ID, slave ID, communication type, etc.
+CAN-MESSAGE : Contains actual data : motor position, speed, torque, etc.
+
+## UART COMMAND ##
+
+Basically, It "hugs" the CAN command with AT command : AT + CAN COMMAND + \r\n.
+
+UART command structure : "AT" (1-byte) / 29-bit CAN ID (4-byte) / Message Length (1-byte) / CAN-MESSAGE (<Message Length>-byte) / "\r\n" (1-byte)
+NOTE : All bytes are in the hexadecimal format.
+Example : 41 54 / 00 07 e8 0c / 01 / 00 / 0d 0a
+Example : 41 54 / 18 07 e8 0c / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
+
+CAN ID (4-byte)
+ww xx yy zz : 8bit hexadecimal x 4 = 32bit (Note : 1byte = 8bit), where
 ww : Communication type (5bit) in hexadecimal
-xx yy : Data area2 (16bit) in hexadecimal
+xx yy : Data area2 (16bit) in hexadecimal 
 zz : Target address(8bit) in hexadecimal
 
-사용자 PARAMETER의 엔코딩 규칙
+Example : Enable motor  
+Parameters :
+ 1. Communication Type : 3
+ 2. motor_id = 1
+ 3. host_id = 2024 (by SAE J1979 OBD-II standard)
+CAN-ID : 18 07 e8 0c
+Logic : 
+ 1. 18 07 e8 0c (Hexadecimal) = 00011000 00000111 11101000 00001100 (Binary) 
+ 2. Remove the first three bits on the left, since the CAN-ID for CAN2.0B communication format is 29 bit : 11000 00000111 11101000 00001100 000
+ 3. Parse : 11000 / 0000011111101000 / 00001100 / 000 : Communication type(5bit) / Data area2(16bit) / Target address(8bit) / Discard (3bit)
+  3.1. Communication type : 11000 (Binary) = 18 (Hexadecimal) = 24 (Decimal)
+  3.2. Data area2 : 0000011111101000 (Binary) = 07e8 (Hexadecimal) = 2024 (Decimal)
+  3.3. Target address : 00001100 (Binary) = 0c (Hexadecimal) = 12 (Decimal)
+ 4. Process message :
+  4.1. Communication type : 24/8 = 3 (Remove the effect of 3-bit erasing, since (binary)<<3 =(decimal)/8
+  4.2. Data area2 : No need to change
+  4.3. Target address : [(decimal)-4]/8 (Again,remove the effect of 3-bit erasing)
 
-Communication type : (10진수값)/8
-Data area2 : 16진수로 07 e8 고정 # HOST ID 관련값, 이는 SAE J1979 OBD-II 표준과의 유사성 (OBD-II 통신에서 0x7E8는 ECU 응답 주소로 사용됩니다)
-Target address : [(10진수값)-4]/8
-
-
-# 예시 : motor ID = 1인 모터를 enable하는 CAN ID의 UART 표현, "18 07 e8 0c"
-18 07 e8 0c (16진수) = 00011000 00000111 11101000 00001100 (2진수) #8비트 2진수, 총 32bit
-00011000000001111110100000001100 << 3 = 11000000001111110100000001100000 #끝에 3개의 0은 무시함으로써 29bit CAN ID가 만들어짐
-11000 / 0000011111101000 / 00001100 / 000 # 샤오미 사이버 기어 기준 슬라이싱 : Communication type(5bit) / Data area2(16bit) / Target address(8bit) / 
-
-11000 (2진수) = 18 (16진수) = 24 (10진수) # Communication type(5bit)
-0000011111101000 (2진수) = 07e8 (16진수) = 2024 (10진수) # 이경우 host CAN_ID(16bit)
-00001100 (2진수) = 0c (16진수) = 12 (10진수) #이경우 motor CAN_ID (8bit)
-000 # 쓰레기값, 무시
-
-ww (COMMAND): on=18, off=20 change_paramter = 90 
-# 공식 : 18 (16진수) -> 24 (10진수)
-# 공식 : 24 / 8 = 3, 이게 communication type (3)
-# 8로 나누는 건 비트연산자 << 3 효과가 있다.
-# Ex> : off : communication typ = 4, 4*8 = 32 (10진수), 32는 16진수로 20
-# 3은 00000011 (8비트, 2진수).
-# 00000011 << 3 = 00011000 
-# 00011000은 10진수로 24, 16진수로 18
-
-CAN communication type (binary) << 3
-
-xx : 07로 고정
-yy : e8로 고정
-zz (MOTOR ID) : 1=0C, 2=14, 3=1c, 4=24 #Decimal로, 12, 20, 28, 36 (8씩 증가)
-
-#handshake
+Note : before communication, one needs to process handshake message, which consists of :
 41 54 2b 41 54 0d 0a : A T + A T \r \n
-
-
-#처음 시작할 때 (MOTOR ID = 1)
-41 54 / 2b 41 54 / 0d 0a : HANDSHAKE (특별)
-
-41 54 / 00 07 e8 0c / 01 / 00 / 0d 0a
-41 54 / 00 07 e8 4c / 01 / 00 / 0d 0a
-41 54 / 00 07 e8 8c / 01 / 00 / 0d 0a
-41 54 / 00 07 e8 cc / 01 / 00 / 0d 0a
-
-41 54 / 98 07 e8 0c / 08 / 97 20 30 02 0c 34 38 0a / 0d 0a
-41 54 / 00 07 e9 0c / 01 / 00 / 0d 0a
-41 54 / 00 07 e9 4c / 01 / 00 / 0d 0a
-
-#MIT mode on, off  (MOTOR ID = 1)
-41 54 / 18 07 e8 0c / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
-41 54 / 20 07 e8 0c / 08 / 00 00 00 00 00 00 00 00 /0d 0a
-#POS mode on, off  (MOTOR ID = 1)
-41 54 / 18 07 e8 0c / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
-41 54 / 20 07 e8 0c / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
-#VEL mode on, off  (MOTOR ID = 1)
-41 54 / 18 07 e8 0c / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
-41 54 / 20 07 e8 0c / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
-#CUR mode on, off  (MOTOR ID = 1)
-41 54 / 18 07 e8 0c / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
-41 54 / 20 07 e8 0c / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
-#CUR mode on, off  (MOTOR ID = 2)
-41 54 / 18 07 e8 14 / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
-41 54 / 20 07 e8 14 / 08 / 00 00 00 00 00 00 00 00 / 0d 0a
-
-
-#VEL mode, set current limit 23 (Motor ID = 1)
-41 54 / 90 07 e8 0c / 08 / 18 70 00 00 00 00 b8 41 / 0d 0a
-41 54 / 90 07 e8 0c / 08 / 0a 70 00 00 00 00 00 00 / 0d 0a
-#VEL mode, set current limit 1 (Motor ID = 1)
-41 54 / 90 07 e8 0c / 08 / 18 70 00 00 00 00 80 3f / 0d 0a
-41 54 / 90 07 e8 0c / 08 / 0a 70 00 00 00 00 00 00 / 0d 0a
-#VEL mode, set vel = 5 (Motor ID = 1)
-41 54 / 90 07 e8 0c / 08 / 18 70 00 00 00 00 80 3f / 0d 0a
-41 54 / 90 07 e8 0c / 08 / 0a 70 00 00 00 00 a0 40 / 0d 0a
-
-
-#set zero POS
-18 07 e8 0c
-
-#set motion mode
-0c 04 40 0c
-
-#set can ID to 1
-38 0f e8 14 
-98 07 e8 0c
-
-#set can ID to 2
-38 17 e8 0c
-98 07 e8 14
-
-oscilloscope off 41 54 50 1f
-oscilloscope on 
-50 07 e8 0c
-50 8f e8 0c
-50 17 e8 0c
