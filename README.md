@@ -19,8 +19,8 @@ The following communication configuration is Recommended.
 <img width="557.5" height="127" alt="image" src="https://github.com/user-attachments/assets/d85cf9f8-8070-424b-b2d4-b17d7bcfd94d" />
 
 # Hardware Setup
-MCU : Raspberry Pi4 (Linux 24.04 LTS)
-USB2CAN : [link](https://www.aliexpress.us/item/1005004296661528.html?gatewayAdapt=4itemAdapt) (Communication : CH340 UART)
+MCU : Raspberry Pi4 (Linux 24.04 LTS) <br>
+USB2CAN : [link](https://www.aliexpress.us/item/1005004296661528.html?gatewayAdapt=4itemAdapt) (Communication : CH340 UART) <br>
 Motor : Robstride or Xiaomi Cybergear (Uses the Same CAN message protocol)
 
 The following is the wiring diagram.
@@ -69,9 +69,9 @@ g++ -o test robstride_driver.cpp test.cpp && ./test
 <br>
 
 # Troubleshoot
-**1. connection with /dev/ttyUSBX**
+**1. Connection with /dev/ttyUSBX**
 1. Check and modify ls /dev/ttyUSB* : might be altered in case of motor power dis/reconncection, etc... <br>
-2. kill process related to /dev/ttyUSBX
+2. Kill process related to /dev/ttyUSBX
 
 ```bash
 fuser -k /dev/ttyUSBX (X : 0, 1, 2 ...)
