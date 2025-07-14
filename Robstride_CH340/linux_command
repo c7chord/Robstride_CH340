@@ -1,3 +1,0 @@
-ls /dev/ttyUSB*
-sudo screen /dev/ttyUSB0 921600
-fuser -k /dev/ttyUSB0
