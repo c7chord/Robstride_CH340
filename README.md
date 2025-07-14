@@ -67,9 +67,10 @@ g++ -o test robstride_driver.cpp test.cpp && ./test
 ```
 
 <br>
-# Hardware Setup
-**connection with /dev/ttyUSBX
-1. Check and modify ls /dev/ttyUSB* : might be altered in case of motor power dis/reconncection, etc...
+
+# Troubleshoot
+**1. connection with /dev/ttyUSBX**
+1. Check and modify ls /dev/ttyUSB* : might be altered in case of motor power dis/reconncection, etc... <br>
 2. kill process related to /dev/ttyUSBX
 
 ```bash
