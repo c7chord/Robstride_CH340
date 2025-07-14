@@ -35,7 +35,7 @@ Logic :
   3.2. Data area2 : 0000011111101000 (Binary) = 07e8 (Hexadecimal) = 2024 (Decimal)
   3.3. Target address : 00001100 (Binary) = 0c (Hexadecimal) = 12 (Decimal)
  4. Process message :
-  4.1. Communication type : 24/8 = 3 (Remove the effect of 3-bit erasing, since (binary)<<3 =(decimal)/8
+  4.1. Communication type : 24/8 = 3 (Remove the effect of 3-bit erasing, since (binary) >> 3 =(decimal)/8)
   4.2. Data area2 : No need to change
   4.3. Target address : [(decimal)-4]/8 (Again,remove the effect of 3-bit erasing)
 
