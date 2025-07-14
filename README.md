@@ -19,7 +19,7 @@ The following is the wiring diagram.
 # Software Setup
 Make sure Every hardware is well-connected.
 
-Check CH340 device : 
+**Check CH340 device :**
 ```bash
 lsusb
 ```
@@ -32,7 +32,7 @@ Bus 001 Device 011: ID 1a86:7523 QinHeng Electronics CH340 serial converter
 
 <br>
 
-Check ttyUSB : 
+**Check ttyUSB :** 
 ```bash
 ls /dev/ttyUSB*
 ```
@@ -47,7 +47,7 @@ Modify robstride_params.h :
 
 <br>
 
-Run example :
+**Run example :**
 ```bash
 cd my_robstride
 g++ -o test robstride_driver.cpp test.cpp && ./test
@@ -62,4 +62,9 @@ g++ -o test robstride_driver.cpp test.cpp && ./test
 ```bash
 fuser -k /dev/ttyUSBX (X : 0, 1, 2 ...)
 ```
+# To-Do
 
+fix "get" functions.  (set function is completed)
+
+# Reference
+[Collections of links related to Xiaomi Cybergear](https://github.com/belovictor/cybergear-docs?tab=readme-ov-file) 
