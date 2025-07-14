@@ -7,7 +7,11 @@ Note : CH340, CH341 all works, as long as the device is detected with the format
 
 However, This repository is NOT RECOMMENDED for practical purpose (Robot Actuator, Differential Drive System, ...) since UART communication via CH340 Driver has relatively low communication frequency compared to direct USB2CAN communication.
 
-The following communication Type is Recommended.
+The following communication configuration is Recommended.
+
+<br>
+
+<img width="557.5" height="127" alt="image" src="https://github.com/user-attachments/assets/d85cf9f8-8070-424b-b2d4-b17d7bcfd94d" />
 
 # Hardware Setup
 MCU : Raspberry Pi4 (Linux 24.04 LTS)
@@ -15,6 +19,10 @@ USB2CAN : [link](https://www.aliexpress.us/item/1005004296661528.html?gatewayAda
 Motor : Robstride or Xiaomi Cybergear (Uses the Same CAN message protocol)
 
 The following is the wiring diagram.
+
+<br>
+
+<img width="450" height="170" alt="image" src="https://github.com/user-attachments/assets/5b9111bf-9748-40f8-b7de-88f39c5b692b" />
 
 # Software Setup
 Make sure Every hardware is well-connected.
